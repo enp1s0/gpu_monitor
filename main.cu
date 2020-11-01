@@ -67,14 +67,14 @@ int main(int argc, char** argv) {
 
 				unsigned int temperature;
 				CUTF_CHECK_ERROR(nvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature));
-				unsigned int memory;
-				CUTF_CHECK_ERROR(nvmlDeviceGetMemoryInfo(device, memory));
+				nvmlMemory_t memory;
+				CUTF_CHECK_ERROR(nvmlDeviceGetMemoryInfo(device, &memory));
 				unsigned int power;
-				CUTF_CHECK_ERROR(nvmlDeviceGetPowerUsage(device, power));
+				CUTF_CHECK_ERROR(nvmlDeviceGetPowerUsage(device, &power));
 
 				ofs << temperature << ","
 					<< power << ","
-					<< memory << ",";
+					<< memory.used << ",";
 			}
 			ofs.close();
 			sleep(time_interval * 1000);
