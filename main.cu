@@ -5,6 +5,9 @@
 #include <vector>
 #include <exception>
 #include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <cutf/device.hpp>
 #include <cutf/nvml.hpp>
 
@@ -39,7 +42,13 @@ int main(int argc, char** argv) {
 
 	parse_params(time_interval, output_file_name, run_command_head, argc, argv);
 
-	int pid = fork();
+	const auto fd = shm_open("/gpu_logger_smem", O_CREAT | O_RDWR, 0666);
+	ftruncate(fd, 1);
+	const auto semaphore = static_cast<char*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+	*semaphore = 'R';
+
+	std::printf("forking...\n");
+	const auto pid = fork();
 	if (pid != 0) {
 		std::ofstream ofs(output_file_name);
 		CUTF_CHECK_ERROR(nvmlInit());
@@ -50,14 +59,14 @@ int main(int argc, char** argv) {
 		for (unsigned gpu_id = 0; gpu_id < num_devices; gpu_id++) {
 			ofs << "gpu" << gpu_id << "_temp,";
 			ofs << "gpu" << gpu_id << "_power,";
-			ofs << "gpu" << gpu_id << "_memory,";
+			ofs << "gpu" << gpu_id << "_memory_used,";
 		}
 		ofs << "\n";
 		ofs.close();
 
 		// Output log
 		unsigned count = 0;
-		while (1) {
+		while ((*semaphore) == 'R') {
 			std::ofstream ofs(output_file_name, std::ios::app);
 			ofs << std::time(nullptr) << ","
 				<< (count++) << ",";
@@ -76,20 +85,22 @@ int main(int argc, char** argv) {
 					<< power << ","
 					<< memory.used << ",";
 			}
+			ofs << "\n";
 			ofs.close();
-			sleep(time_interval * 1000);
+			sleep(time_interval);
 		}
 
 		CUTF_CHECK_ERROR(nvmlShutdown());
 	} else {
 		const auto cmd = argv[run_command_head];
 		std::vector<char*> cmd_args(argc - run_command_head + 1);	
-		for (int i = 0, v = 0; i < run_command_head; i++, v++) {
+		for (int i = run_command_head, v = 0; i < argc; i++, v++) {
 			cmd_args[v] = argv[i];
 		}
 		cmd_args[cmd_args.size() - 1] = nullptr;
 
 		execvp(cmd, cmd_args.data());
+		*semaphore = 'E';
 		exit(0);
 	}
 }
