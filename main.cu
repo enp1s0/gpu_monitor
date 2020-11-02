@@ -15,14 +15,14 @@ void parse_params(unsigned &time_interval, std::string& output_file_name, int& r
 	run_command_head = 1;
 	output_file_name = "gpu.log";
 	time_interval = 1;
-	for (int i = 1; i < argc; i++) {
+	for (int i = 1; i < argc;) {
 		if (std::string(argv[i]) == "-i") {
 			if (i + 1 >= argc) {
 				throw std::runtime_error("The value of `-i` is not provided");
 			}
 			time_interval = std::stoul(argv[i+1]);
 			i += 2;
-		} else if (std::string(argv[i]) == "-i") {
+		} else if (std::string(argv[i]) == "-o") {
 			if (i + 1 >= argc) {
 				throw std::runtime_error("The value of `-o` is not provided");
 			}
@@ -47,9 +47,8 @@ int main(int argc, char** argv) {
 	const auto semaphore = static_cast<char*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
 	*semaphore = 'R';
 
-	std::printf("forking...\n");
 	const auto pid = fork();
-	if (pid != 0) {
+	if (pid == 0) {
 		std::ofstream ofs(output_file_name);
 		CUTF_CHECK_ERROR(nvmlInit());
 		const auto num_devices = cutf::device::get_num_devices();
@@ -68,8 +67,8 @@ int main(int argc, char** argv) {
 		unsigned count = 0;
 		while ((*semaphore) == 'R') {
 			std::ofstream ofs(output_file_name, std::ios::app);
-			ofs << std::time(nullptr) << ","
-				<< (count++) << ",";
+			ofs << (count++) << ","
+				<< std::time(nullptr) << ",";
 			for (unsigned gpu_id = 0; gpu_id < num_devices; gpu_id++) {
 				nvmlDevice_t device;
 				CUTF_CHECK_ERROR(nvmlDeviceGetHandleByIndex(gpu_id, &device));
