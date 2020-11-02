@@ -11,5 +11,10 @@ make
 
 ## Usage
 ```
+./gpu_logger ./a.out
+```
+
+Some options are available to specify time interval and output file name.
+```
 ./gpu_logger [-i interval(s){default=1}] [-o output_file_name{default=gpu.csv}] target_command
 ```
