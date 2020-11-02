@@ -28,11 +28,20 @@ void parse_params(unsigned &time_interval, std::string& output_file_name, int& r
 			}
 			output_file_name = argv[i+1];
 			i += 2;
+		} else if (std::string(argv[i]) == "-h") {
+			time_interval = 0; // This means that this execution is invalid and exits with printing help messages.
 		} else {
 			run_command_head = i;
 			return;
 		}
 	}
+}
+
+void print_help_message(const char* const program_name) {
+	std::printf("/*** GPU Logger ***/\n");
+	std::printf("\n");
+	std::printf("// Usage\n");
+	std::printf("%s [-i interval(s){default=1}] [-o output_file_name{default=gpu.csv}] target_command\n", program_name);
 }
 
 int main(int argc, char** argv) {
@@ -41,6 +50,11 @@ int main(int argc, char** argv) {
 	int run_command_head;
 
 	parse_params(time_interval, output_file_name, run_command_head, argc, argv);
+
+	if (time_interval < 1 || argc <= 1) {
+		print_help_message(argv[0]);
+		return 1;
+	}
 
 	const auto fd = shm_open("/gpu_logger_smem", O_CREAT | O_RDWR, 0666);
 	ftruncate(fd, 1);
