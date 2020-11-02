@@ -44,6 +44,11 @@ void print_help_message(const char* const program_name) {
 	std::printf("%s [-i interval(s){default=1}] [-o output_file_name{default=gpu.csv}] target_command\n", program_name);
 }
 
+namespace process {
+constexpr char running = 'R';
+constexpr char end     = 'E';
+} // namespace process
+
 int main(int argc, char** argv) {
 	std::string output_file_name;
 	unsigned time_interval;
@@ -59,7 +64,7 @@ int main(int argc, char** argv) {
 	const auto fd = shm_open("/gpu_logger_smem", O_CREAT | O_RDWR, 0666);
 	ftruncate(fd, 1);
 	const auto semaphore = static_cast<char*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
-	*semaphore = 'R';
+	*semaphore = process::running;
 
 	const auto pid = fork();
 	if (pid == 0) {
@@ -79,7 +84,7 @@ int main(int argc, char** argv) {
 
 		// Output log
 		unsigned count = 0;
-		while ((*semaphore) == 'R') {
+		while ((*semaphore) == process::running) {
 			std::ofstream ofs(output_file_name, std::ios::app);
 			ofs << (count++) << ","
 				<< std::time(nullptr) << ",";
@@ -113,7 +118,7 @@ int main(int argc, char** argv) {
 		cmd_args[cmd_args.size() - 1] = nullptr;
 
 		execvp(cmd, cmd_args.data());
-		*semaphore = 'E';
+		*semaphore = process::end;
 		exit(0);
 	}
 }
