@@ -4,6 +4,8 @@ This program records GPU temperature, power consumption, used memory while execu
 
 ## Build
 ```bash
+git clone https://github.com/enp1s0/gpu_logger --recursive
+cd gpu_logger
 make
 ```
 
