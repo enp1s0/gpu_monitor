@@ -13,7 +13,7 @@
 
 void parse_params(unsigned &time_interval, std::string& output_file_name, int& run_command_head, int argc, char** argv) {
 	run_command_head = 1;
-	output_file_name = "gpu.log";
+	output_file_name = "gpu.csv";
 	time_interval = 1;
 	for (int i = 1; i < argc;) {
 		if (std::string(argv[i]) == "-i") {
