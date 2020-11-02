@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 				CUTF_CHECK_ERROR(nvmlDeviceGetPowerUsage(device, &power));
 
 				ofs << temperature << ","
-					<< power << ","
+					<< (power / 1000.0) << ","
 					<< memory.used << ",";
 			}
 			ofs << "\n";
