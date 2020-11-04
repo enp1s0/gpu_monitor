@@ -41,7 +41,7 @@ void print_help_message(const char* const program_name) {
 	std::printf("/*** GPU Logger ***/\n");
 	std::printf("\n");
 	std::printf("// Usage\n");
-	std::printf("%s [-i interval(s){default=1}] [-o output_file_name{default=gpu.csv}] target_command\n", program_name);
+	std::printf("%s [-i interval(ms){default=1000}] [-o output_file_name{default=gpu.csv}] target_command\n", program_name);
 }
 
 namespace process {
@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
 			}
 			ofs << "\n";
 			ofs.close();
-			sleep(time_interval);
+			usleep(time_interval * 1000);
 		}
 
 		CUTF_CHECK_ERROR(nvmlShutdown());
