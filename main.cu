@@ -43,7 +43,7 @@ void print_help_message(const char* const program_name) {
 	std::printf("/*** GPU Logger ***/\n");
 	std::printf("\n");
 	std::printf("// Usage\n");
-	std::printf("%s [-i interval(ms){default=1000}] [-o output_file_name{default=gpu.csv}] target_command\n", program_name);
+	std::printf("%s [-i interval(ms){default=1}] [-o output_file_name{default=gpu.csv}] target_command\n", program_name);
 }
 
 namespace process {
