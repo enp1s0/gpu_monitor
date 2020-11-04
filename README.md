@@ -16,5 +16,5 @@ make
 
 Some options are available to specify time interval and output file name.
 ```
-./gpu_logger [-i interval(s){default=1}] [-o output_file_name{default=gpu.csv}] target_command
+./gpu_logger [-i interval(us){default=1000}] [-o output_file_name{default=gpu.csv}] target_command
 ```
