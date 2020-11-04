@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <cutf/device.hpp>
 #include <cutf/nvml.hpp>
@@ -113,7 +114,7 @@ int main(int argc, char** argv) {
 		}
 
 		CUTF_CHECK_ERROR(nvmlShutdown());
-		return 0;
+		exit(0);
 	} else {
 		const auto cmd = argv[run_command_head];
 		std::vector<char*> cmd_args(argc - run_command_head + 1);	
@@ -122,8 +123,13 @@ int main(int argc, char** argv) {
 		}
 		cmd_args[cmd_args.size() - 1] = nullptr;
 
-		execvp(cmd, cmd_args.data());
-		*semaphore = process::end;
-		exit(0);
+		const auto command_pid = fork();
+		if (command_pid == 0) {
+			execvp(cmd, cmd_args.data());
+			exit(0);
+		} else {
+			wait(nullptr);
+			*semaphore = process::end;
+		}
 	}
 }
