@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <ctime>
+#include <chrono>
 #include <vector>
 #include <exception>
 #include <unistd.h>
@@ -73,7 +74,7 @@ int main(int argc, char** argv) {
 		const auto num_devices = cutf::device::get_num_devices();
 
 		// Output csv header
-		ofs << "index,date,";
+		ofs << "index,date,elapsed_time,";
 		for (unsigned gpu_id = 0; gpu_id < num_devices; gpu_id++) {
 			ofs << "gpu" << gpu_id << "_temp,";
 			ofs << "gpu" << gpu_id << "_power,";
@@ -84,10 +85,13 @@ int main(int argc, char** argv) {
 
 		// Output log
 		unsigned count = 0;
+		const auto start_clock = std::chrono::high_resolution_clock::now();
 		while ((*semaphore) == process::running) {
 			std::ofstream ofs(output_file_name, std::ios::app);
 			ofs << (count++) << ","
 				<< std::time(nullptr) << ",";
+			const auto end_clock = std::chrono::high_resolution_clock::now();
+			ofs << std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count() << ",";
 			for (unsigned gpu_id = 0; gpu_id < num_devices; gpu_id++) {
 				nvmlDevice_t device;
 				CUTF_CHECK_ERROR(nvmlDeviceGetHandleByIndex(gpu_id, &device));
@@ -109,6 +113,7 @@ int main(int argc, char** argv) {
 		}
 
 		CUTF_CHECK_ERROR(nvmlShutdown());
+		return 0;
 	} else {
 		const auto cmd = argv[run_command_head];
 		std::vector<char*> cmd_args(argc - run_command_head + 1);	
