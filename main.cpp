@@ -15,6 +15,10 @@
 #include "gpu_logger_cuda.hpp"
 #endif
 
+#ifdef ACC_HIP
+#include "gpu_logger_hip.hpp"
+#endif
+
 void parse_params(unsigned &time_interval, std::string& output_file_name, int& run_command_head, int argc, char** argv) {
 	run_command_head = 1;
 	output_file_name = "gpu.csv";
@@ -74,6 +78,9 @@ int main(int argc, char** argv) {
 	if (pid == 0) {
 #ifdef ACC_CUDA
 		mtk::gpu_logger_cuda gpu_logger;
+#endif
+#ifdef ACC_HIP
+		mtk::gpu_logger_hip gpu_logger;
 #endif
 		gpu_logger.init();
 		std::ofstream ofs(output_file_name);
