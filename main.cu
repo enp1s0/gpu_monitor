@@ -10,8 +10,10 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <cutf/device.hpp>
-#include <cutf/nvml.hpp>
+
+#ifdef ACC_CUDA
+#include "gpu_logger_cuda.hpp"
+#endif
 
 void parse_params(unsigned &time_interval, std::string& output_file_name, int& run_command_head, int argc, char** argv) {
 	run_command_head = 1;
@@ -70,9 +72,12 @@ int main(int argc, char** argv) {
 
 	const auto pid = fork();
 	if (pid == 0) {
+#ifdef ACC_CUDA
+		mtk::gpu_logger_cuda gpu_logger;
+#endif
+		gpu_logger.init();
 		std::ofstream ofs(output_file_name);
-		CUTF_CHECK_ERROR(nvmlInit());
-		const auto num_devices = cutf::device::get_num_devices();
+		const auto num_devices = gpu_logger.get_num_devices();
 
 		// Output csv header
 		ofs << "index,date,elapsed_time,";
@@ -94,26 +99,17 @@ int main(int argc, char** argv) {
 			const auto end_clock = std::chrono::high_resolution_clock::now();
 			ofs << std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count() << ",";
 			for (unsigned gpu_id = 0; gpu_id < num_devices; gpu_id++) {
-				nvmlDevice_t device;
-				CUTF_CHECK_ERROR(nvmlDeviceGetHandleByIndex(gpu_id, &device));
-
-				unsigned int temperature;
-				CUTF_CHECK_ERROR(nvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature));
-				nvmlMemory_t memory;
-				CUTF_CHECK_ERROR(nvmlDeviceGetMemoryInfo(device, &memory));
-				unsigned int power;
-				CUTF_CHECK_ERROR(nvmlDeviceGetPowerUsage(device, &power));
-
-				ofs << temperature << ","
-					<< (power / 1000.0) << ","
-					<< memory.used << ",";
+				ofs << gpu_logger.get_current_temperature(gpu_id) << ","
+					<< gpu_logger.get_current_power(gpu_id) << ","
+					<< gpu_logger.get_current_used_memory(gpu_id) << ",";
 			}
 			ofs << "\n";
 			ofs.close();
 			usleep(time_interval * 1000);
 		}
 
-		CUTF_CHECK_ERROR(nvmlShutdown());
+		gpu_logger.shutdown();
+
 		exit(0);
 	} else {
 		const auto cmd = argv[run_command_head];
