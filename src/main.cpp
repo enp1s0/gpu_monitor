@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
 		bool invalid_gpu_ids = false;
 		for (const auto gpu_id : gpu_ids) {
 			if (gpu_id >= num_devices) {
-				std::fprintf(stderr, "[ERROR] GPU %u is not found\n", gpu_id);
+				std::fprintf(stderr, "[ERROR(gpu_logger)] GPU %u is not found\n", gpu_id);
 				invalid_gpu_ids = true;
 			}
 		}
