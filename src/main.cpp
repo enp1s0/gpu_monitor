@@ -34,7 +34,7 @@ std::vector<unsigned> get_gpu_ids(const std::string str) {
 void parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int argc, char** argv) {
 	run_command_head = 1;
 	output_file_name = "gpu.csv";
-	time_interval = 1;
+	time_interval = 100;
 	gpu_ids = std::vector<unsigned>{0};
 	for (int i = 1; i < argc;) {
 		if (std::string(argv[i]) == "-i") {
@@ -68,7 +68,7 @@ void print_help_message(const char* const program_name) {
 	std::printf("/*** GPU Logger ***/\n");
 	std::printf("\n");
 	std::printf("// Usage\n");
-	std::printf("%s [-i interval(ms){default=1}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=0}] target_command\n", program_name);
+	std::printf("%s [-i interval(ms){default=100}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=0}] target_command\n", program_name);
 }
 
 namespace process {
@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 		for (const auto gpu_id : gpu_ids) {
 			ofs << "gpu" << gpu_id << "_temp,";
 			ofs << "gpu" << gpu_id << "_power,";
-			ofs << "gpu" << gpu_id << "_memory_used,";
+			ofs << "gpu" << gpu_id << "_memory_usage,";
 		}
 		ofs << "\n";
 		ofs.close();
@@ -137,7 +137,8 @@ int main(int argc, char** argv) {
 			ofs << (count++) << ","
 				<< std::time(nullptr) << ",";
 			const auto end_clock = std::chrono::high_resolution_clock::now();
-			ofs << std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count() << ",";
+			const auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count();
+			ofs << elapsed_time << ",";
 			for (const auto gpu_id : gpu_ids) {
 				ofs << gpu_logger.get_current_temperature(gpu_id) << ","
 					<< gpu_logger.get_current_power(gpu_id) << ","
@@ -145,7 +146,7 @@ int main(int argc, char** argv) {
 			}
 			ofs << "\n";
 			ofs.close();
-			usleep(time_interval * 1000);
+			usleep(time_interval * 1000 * count - elapsed_time);
 		}
 
 		gpu_logger.shutdown();
