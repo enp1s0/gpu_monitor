@@ -64,7 +64,7 @@ fig.legend(line_list,
         loc='upper center',
         ncol=1,
         bbox_to_anchor=(0.8, 1.2),
-        bbox_transform=ax0.transAxes
+        bbox_transform=ax1.transAxes
         )
 plt.tight_layout()
 
