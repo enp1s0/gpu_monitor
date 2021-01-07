@@ -10,11 +10,16 @@ make
 ```
 
 ## Usage
-```
+```bash
 ./gpu_logger ./a.out
 ```
 
 Some options are available to specify time interval and output file name.
+```bash
+./gpu_logger [-i interval(ms){default=1}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=0}] target_command
 ```
-./gpu_logger [-i interval(us){default=1000}] [-o output_file_name{default=gpu.csv}] target_command
+
+e.g.
+```bash
+./gpu_logger -i 100 -o report.csv -g 0,2,4 ./a.out
 ```
