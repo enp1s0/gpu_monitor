@@ -34,7 +34,7 @@ std::vector<unsigned> get_gpu_ids(const std::string str) {
 void parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int argc, char** argv) {
 	run_command_head = 1;
 	output_file_name = "gpu.csv";
-	time_interval = 1;
+	time_interval = 100;
 	gpu_ids = std::vector<unsigned>{0};
 	for (int i = 1; i < argc;) {
 		if (std::string(argv[i]) == "-i") {
@@ -68,7 +68,7 @@ void print_help_message(const char* const program_name) {
 	std::printf("/*** GPU Logger ***/\n");
 	std::printf("\n");
 	std::printf("// Usage\n");
-	std::printf("%s [-i interval(ms){default=1}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=0}] target_command\n", program_name);
+	std::printf("%s [-i interval(ms){default=100}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=0}] target_command\n", program_name);
 }
 
 namespace process {
