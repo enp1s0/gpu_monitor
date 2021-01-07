@@ -137,7 +137,8 @@ int main(int argc, char** argv) {
 			ofs << (count++) << ","
 				<< std::time(nullptr) << ",";
 			const auto end_clock = std::chrono::high_resolution_clock::now();
-			ofs << std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count() << ",";
+			const auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count();
+			ofs << elapsed_time << ",";
 			for (const auto gpu_id : gpu_ids) {
 				ofs << gpu_logger.get_current_temperature(gpu_id) << ","
 					<< gpu_logger.get_current_power(gpu_id) << ","
@@ -145,7 +146,7 @@ int main(int argc, char** argv) {
 			}
 			ofs << "\n";
 			ofs.close();
-			usleep(time_interval * 1000);
+			usleep(time_interval * 1000 * count - elapsed_time);
 		}
 
 		gpu_logger.shutdown();
