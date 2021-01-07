@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 		for (const auto gpu_id : gpu_ids) {
 			ofs << "gpu" << gpu_id << "_temp,";
 			ofs << "gpu" << gpu_id << "_power,";
-			ofs << "gpu" << gpu_id << "_memory_used,";
+			ofs << "gpu" << gpu_id << "_memory_usage,";
 		}
 		ofs << "\n";
 		ofs.close();
