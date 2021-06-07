@@ -1,5 +1,5 @@
 CXX=
-CXXFLAGS=-std=c++11
+CXXFLAGS=-std=c++17 -I./include -lstdc++fs
 TARGET=gpu_logger
 SRCS=src/main.cpp
 
