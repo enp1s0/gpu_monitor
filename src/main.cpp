@@ -7,6 +7,7 @@
 #include <chrono>
 #include <vector>
 #include <exception>
+#include <filesystem>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -120,9 +121,7 @@ int main(int argc, char** argv) {
 	*semaphore = process::running;
 
 	// interprocess message
-	std::string temp_dir = getenv("TEMP");
-	if (temp_dir.length() == 0)
-		temp_dir = "/tmp";
+	std::string temp_dir = std::filesystem::temp_directory_path();
 	const auto rand = std::random_device{}();
 	std::string message_file_path = temp_dir + "/gm-" + std::to_string(rand);
 	setenv(mtk::gpu_monitor::message_file_path_env_name, message_file_path.c_str(), 1);
@@ -208,4 +207,6 @@ int main(int argc, char** argv) {
 			*semaphore = process::end;
 		}
 	}
+
+	std::filesystem::remove(message_file_path);
 }
