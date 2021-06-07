@@ -80,7 +80,7 @@ constexpr char end     = 'E';
 } // namespace process
 
 namespace {
-std::string load_extra_message(const std::string filename) {
+std::string load_inserting_message(const std::string filename) {
 	std::ifstream ifs(filename);
 	if (!ifs) {
 		return "";
@@ -177,7 +177,7 @@ int main(int argc, char** argv) {
 					<< gpu_monitor.get_current_used_memory(gpu_id) << ",";
 			}
 			ofs << "\n";
-			const auto message = load_extra_message(message_file_path);
+			const auto message = load_inserting_message(message_file_path);
 			if (message.length() != 0) {
 				ofs << message << "\n";
 			}
