@@ -33,7 +33,7 @@ e.g.
 You can use GPU Monitor API to insert messages to output file.
 
 ```cpp
-// g++ -I/path/to/gpu_monitor/include ...
+// g++ -std=c++11 -I/path/to/gpu_monitor/include ...
 #include <gpu_monito/gpu_monitor.h>
 
 int main() {
