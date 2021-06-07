@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <random>
 #include <string>
 #include <ctime>
 #include <chrono>
@@ -11,6 +12,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <gpu_monitor/gpu_monitor.h>
 
 #ifdef ACC_CUDA
 #include "gpu_logger_cuda.hpp"
@@ -76,6 +78,27 @@ constexpr char running = 'R';
 constexpr char end     = 'E';
 } // namespace process
 
+namespace {
+std::string load_extra_message(const std::string filename) {
+	std::ifstream ifs(filename);
+	if (!ifs) {
+		return "";
+	}
+
+	std::string appended_string = "";
+	std::string buffer;
+	while (std::getline(ifs, buffer)) {
+		appended_string += buffer;
+	}
+	ifs.close();
+
+	std::ofstream ofs(filename);
+	ofs.close();
+
+	return appended_string;
+}
+} // noname namespace
+
 int main(int argc, char** argv) {
 	std::string output_file_name;
 	unsigned time_interval;
@@ -93,6 +116,14 @@ int main(int argc, char** argv) {
 	ftruncate(fd, 1);
 	const auto semaphore = static_cast<char*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
 	*semaphore = process::running;
+
+	// interprocess message
+	std::string temp_dir = getenv("TEMP");
+	if (temp_dir.length() == 0)
+		temp_dir = "/tmp";
+	const auto rand = std::random_device{}();
+	std::string message_file_path = temp_dir + "/gli-" + std::to_string(rand);
+	setenv(gli_message_file_path_env_name, message_file_path.c_str(), 1);
 
 	const auto pid = fork();
 	if (pid == 0) {
@@ -145,8 +176,14 @@ int main(int argc, char** argv) {
 					<< gpu_logger.get_current_used_memory(gpu_id) << ",";
 			}
 			ofs << "\n";
+			const auto message = load_extra_message(message_file_path);
+			if (message.length() != 0) {
+				ofs << message << "\n";
+			}
 			ofs.close();
-			usleep(time_interval * 1000 * count - elapsed_time);
+			const auto end_clock_1 = std::chrono::high_resolution_clock::now();
+			const auto elapsed_time_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_clock_1 - start_clock).count();
+			usleep(time_interval * 1000 * count - elapsed_time_1);
 		}
 
 		gpu_logger.shutdown();
