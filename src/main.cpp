@@ -80,25 +80,23 @@ constexpr char end     = 'E';
 } // namespace process
 
 namespace {
-std::string load_inserting_message(const std::string filename) {
+void insert_message(const std::string filename, std::ofstream& ofs) {
 	std::ifstream ifs(filename);
 	if (!ifs) {
-		return "";
+		return;
 	}
 
-	std::string appended_string = "";
 	std::string buffer;
 	while (std::getline(ifs, buffer)) {
-		if (buffer == "\n")
+		if (buffer == "\n" || buffer.length() == 0) {
 			continue;
-		appended_string += buffer;
+		}
+		ofs << buffer << std::endl;
 	}
 	ifs.close();
 
-	std::ofstream ofs(filename);
-	ofs.close();
-
-	return appended_string;
+	std::ofstream ofs_m(filename);
+	ofs_m.close();
 }
 } // noname namespace
 
@@ -177,10 +175,7 @@ int main(int argc, char** argv) {
 					<< gpu_monitor.get_current_used_memory(gpu_id) << ",";
 			}
 			ofs << "\n";
-			const auto message = load_inserting_message(message_file_path);
-			if (message.length() != 0) {
-				ofs << message << "\n";
-			}
+			insert_message(message_file_path, ofs);
 			ofs.close();
 			const auto end_clock_1 = std::chrono::high_resolution_clock::now();
 			const auto elapsed_time_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_clock_1 - start_clock).count();
