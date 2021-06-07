@@ -9,11 +9,12 @@ namespace mtk {
 namespace gpu_monitor {
 static const char* message_file_path_env_name = "GLI_MESSGAE_FILE_PATH";
 inline void insert_message(const std::string message) {
-	const std::string message_file_path = getenv(message_file_path_env_name);
+	const auto message_file_path_ptr = getenv(message_file_path_env_name);
 	// If the target program is not launched by gpu_monitor, the length will be zero.
-	if (message_file_path.length() == 0) {
+	if (message_file_path_ptr == nullptr) {
 		return;
 	}
+	const std::string message_file_path = message_file_path_ptr;
 
 	std::ofstream ofs(message_file_path, std::ios::app);
 	if (!ofs) {
