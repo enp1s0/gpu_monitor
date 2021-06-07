@@ -179,7 +179,7 @@ int main(int argc, char** argv) {
 			ofs.close();
 			const auto end_clock_1 = std::chrono::high_resolution_clock::now();
 			const auto elapsed_time_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_clock_1 - start_clock).count();
-			usleep(time_interval * 1000 * count - elapsed_time_1);
+			usleep(std::max<std::time_t>(time_interval * 1000 * count, elapsed_time_1) - elapsed_time_1);
 		} while ((*semaphore) == process::running);
 
 		gpu_monitor.shutdown();
