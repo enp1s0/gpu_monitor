@@ -27,3 +27,21 @@ e.g.
 ```bash
 ./gpu_monitor -i 100 -o report.csv -g 0,2,4 ./a.out
 ```
+
+## Insert messages to output file
+
+You can use GPU Monitor API to insert messages to output file.
+
+```cpp
+// g++ -I/path/to/gpu_monitor/include ...
+#include <gpu_monito/gpu_monitor.h>
+
+int main() {
+    // ...
+    mtk::gpu_monitor::insert_message("Hello, world!");
+}
+```
+
+## License
+
+MIT
