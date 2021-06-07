@@ -7,6 +7,7 @@ int main() {
 	std::printf("message_file_path = %s\n", message_file_path);
 
 	mtk::gpu_monitor::insert_message("hello");
-
-	sleep(5);
+	sleep(1);
+	mtk::gpu_monitor::insert_message("world");
+	sleep(1);
 }
