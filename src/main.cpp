@@ -88,6 +88,8 @@ std::string load_extra_message(const std::string filename) {
 	std::string appended_string = "";
 	std::string buffer;
 	while (std::getline(ifs, buffer)) {
+		if (buffer == "\n")
+			continue;
 		appended_string += buffer;
 	}
 	ifs.close();
@@ -122,8 +124,8 @@ int main(int argc, char** argv) {
 	if (temp_dir.length() == 0)
 		temp_dir = "/tmp";
 	const auto rand = std::random_device{}();
-	std::string message_file_path = temp_dir + "/gli-" + std::to_string(rand);
-	setenv(gli_message_file_path_env_name, message_file_path.c_str(), 1);
+	std::string message_file_path = temp_dir + "/gm-" + std::to_string(rand);
+	setenv(mtk::gpu_monitor::message_file_path_env_name, message_file_path.c_str(), 1);
 
 	const auto pid = fork();
 	if (pid == 0) {
