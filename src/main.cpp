@@ -1,23 +1,26 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <random>
 #include <string>
 #include <ctime>
 #include <chrono>
 #include <vector>
 #include <exception>
+#include <filesystem>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <gpu_monitor/gpu_monitor.h>
 
 #ifdef ACC_CUDA
-#include "gpu_logger_cuda.hpp"
+#include "gpu_monitor_cuda.hpp"
 #endif
 
 #ifdef ACC_HIP
-#include "gpu_logger_hip.hpp"
+#include "gpu_monitor_hip.hpp"
 #endif
 
 // e.g. Input `str` is "0,1,3", then return vector will be `{0, 1, 3}`.
@@ -76,6 +79,29 @@ constexpr char running = 'R';
 constexpr char end     = 'E';
 } // namespace process
 
+namespace {
+std::string load_inserting_message(const std::string filename) {
+	std::ifstream ifs(filename);
+	if (!ifs) {
+		return "";
+	}
+
+	std::string appended_string = "";
+	std::string buffer;
+	while (std::getline(ifs, buffer)) {
+		if (buffer == "\n")
+			continue;
+		appended_string += buffer;
+	}
+	ifs.close();
+
+	std::ofstream ofs(filename);
+	ofs.close();
+
+	return appended_string;
+}
+} // noname namespace
+
 int main(int argc, char** argv) {
 	std::string output_file_name;
 	unsigned time_interval;
@@ -89,33 +115,39 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	const auto fd = shm_open("/gpu_logger_smem", O_CREAT | O_RDWR, 0666);
+	const auto fd = shm_open("/gpu_monitor_smem", O_CREAT | O_RDWR, 0666);
 	ftruncate(fd, 1);
 	const auto semaphore = static_cast<char*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
 	*semaphore = process::running;
 
+	// interprocess message
+	std::string temp_dir = std::filesystem::temp_directory_path();
+	const auto rand = std::random_device{}();
+	std::string message_file_path = temp_dir + "/gm-" + std::to_string(rand);
+	setenv(mtk::gpu_monitor::message_file_path_env_name, message_file_path.c_str(), 1);
+
 	const auto pid = fork();
 	if (pid == 0) {
 #ifdef ACC_CUDA
-		mtk::gpu_logger_cuda gpu_logger;
+		mtk::gpu_monitor::gpu_monitor_cuda gpu_monitor;
 #endif
 #ifdef ACC_HIP
-		mtk::gpu_logger_hip gpu_logger;
+		mtk::gpu_monitor::gpu_monitor_hip gpu_monitor;
 #endif
-		gpu_logger.init();
+		gpu_monitor.init();
 		std::ofstream ofs(output_file_name);
-		const auto num_devices = gpu_logger.get_num_devices();
+		const auto num_devices = gpu_monitor.get_num_devices();
 
 		// Validate given gpu ids
 		bool invalid_gpu_ids = false;
 		for (const auto gpu_id : gpu_ids) {
 			if (gpu_id >= num_devices) {
-				std::fprintf(stderr, "[ERROR(gpu_logger)] GPU %u is not found\n", gpu_id);
+				std::fprintf(stderr, "[ERROR(gpu_monitor)] GPU %u is not found\n", gpu_id);
 				invalid_gpu_ids = true;
 			}
 		}
 		if (invalid_gpu_ids) {
-			gpu_logger.shutdown();
+			gpu_monitor.shutdown();
 			exit(1);
 		}
 
@@ -132,7 +164,7 @@ int main(int argc, char** argv) {
 		// Output log
 		unsigned count = 0;
 		const auto start_clock = std::chrono::high_resolution_clock::now();
-		while ((*semaphore) == process::running) {
+		do {
 			std::ofstream ofs(output_file_name, std::ios::app);
 			ofs << (count++) << ","
 				<< std::time(nullptr) << ",";
@@ -140,16 +172,22 @@ int main(int argc, char** argv) {
 			const auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count();
 			ofs << elapsed_time << ",";
 			for (const auto gpu_id : gpu_ids) {
-				ofs << gpu_logger.get_current_temperature(gpu_id) << ","
-					<< gpu_logger.get_current_power(gpu_id) << ","
-					<< gpu_logger.get_current_used_memory(gpu_id) << ",";
+				ofs << gpu_monitor.get_current_temperature(gpu_id) << ","
+					<< gpu_monitor.get_current_power(gpu_id) << ","
+					<< gpu_monitor.get_current_used_memory(gpu_id) << ",";
 			}
 			ofs << "\n";
+			const auto message = load_inserting_message(message_file_path);
+			if (message.length() != 0) {
+				ofs << message << "\n";
+			}
 			ofs.close();
-			usleep(time_interval * 1000 * count - elapsed_time);
-		}
+			const auto end_clock_1 = std::chrono::high_resolution_clock::now();
+			const auto elapsed_time_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_clock_1 - start_clock).count();
+			usleep(time_interval * 1000 * count - elapsed_time_1);
+		} while ((*semaphore) == process::running);
 
-		gpu_logger.shutdown();
+		gpu_monitor.shutdown();
 
 		exit(0);
 	} else {
@@ -169,4 +207,6 @@ int main(int argc, char** argv) {
 			*semaphore = process::end;
 		}
 	}
+
+	std::filesystem::remove(message_file_path);
 }
