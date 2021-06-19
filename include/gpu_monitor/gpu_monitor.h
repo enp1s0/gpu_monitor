@@ -4,6 +4,8 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <vector>
+#include <chrono>
 
 namespace mtk {
 namespace gpu_monitor {
@@ -22,9 +24,17 @@ inline void insert_message(const std::string message) {
 		return;
 	}
 
-	ofs << message << "\n";
+	ofs << "\n" << message;
 	ofs.close();
 }
+
+class gpu_monitor {
+	// A list of power consumption
+	std::vector<unsigned> power_consumption_list;
+	
+	// start timestamp
+	std::chrono::time_point<std::chrono::system_clock> start_clock;
+};
 } // namespace gpu_monitor
 } // namespace mtk
 
