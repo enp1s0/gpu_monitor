@@ -33,6 +33,7 @@ $(TARGET_BIN):$(OBJDIR)/main.o $(OBJS)
 	$(CXX) $+ $(CXXFLAGS) -o $@
 
 $(TARGET_LIB):$(OBJDIR)/libgpu_monitor.o $(OBJS)
+	[ -d $(LIBDIR) ] || mkdir $(LIBDIR)
 	$(CXX) $+ $(CXXFLAGS) -lib -o $@
 
 $(SRCDIR)/%.cpp: $(SRCDIR)/%.cu
