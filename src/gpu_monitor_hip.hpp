@@ -10,6 +10,7 @@ public:
 	void shutdown();
 
 	std::size_t get_num_devices() const;
+	std::size_t get_current_device() const;
 
 	double get_current_temperature(const unsigned gpu_id) const;
 	double get_current_power(const unsigned gpu_id) const;

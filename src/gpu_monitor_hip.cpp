@@ -13,6 +13,10 @@ std::size_t mtk::gpu_monitor::gpu_monitor_hip::get_num_devices() const {
 	return hiptf::device::get_num_devices();
 }
 
+std::size_t mtk::gpu_monitor::gpu_monitor_hip::get_current_device() const {
+	return hiptf::device::get_device_id();
+}
+
 double mtk::gpu_monitor::gpu_monitor_hip::get_current_temperature(const unsigned gpu_id) const {
 	int64_t temperature;
 	HIPTF_CHECK_ERROR(rsmi_dev_temp_metric_get(gpu_id, 0, RSMI_TEMP_CURRENT, &temperature));

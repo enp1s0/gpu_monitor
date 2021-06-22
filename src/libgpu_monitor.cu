@@ -28,9 +28,8 @@ std::vector<std::tuple<std::time_t, double, double, double>> mtk::gpu_monitor::m
 #ifdef ACC_HIP
 	mtk::gpu_monitor::gpu_monitor_hip gpu_monitor;
 #endif
-	int gpu_id;
-	cudaGetDevice(&gpu_id);
 	gpu_monitor.init();
+	int gpu_id = gpu_monitor.get_current_device();
 	// Output log
 	unsigned count = 0;
 
