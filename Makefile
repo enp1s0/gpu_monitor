@@ -13,7 +13,7 @@ CXXFLAGS+=-DACC_$(ACC)
 
 ifeq ($(ACC), CUDA)
 CXX=nvcc
-CXXFLAGS+=-I./cutf -lnvidia-ml
+CXXFLAGS+=-I./cutf/include -lnvidia-ml
 OBJS+=$(OBJDIR)/gpu_monitor_cuda.o
 endif
 #ifeq ($(ACC), HIP)
