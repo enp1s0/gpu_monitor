@@ -6,6 +6,8 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <tuple>
+#include <functional>
 
 namespace mtk {
 namespace gpu_monitor {
@@ -28,13 +30,10 @@ inline void insert_message(const std::string message) {
 	ofs.close();
 }
 
-class gpu_monitor {
-	// A list of power consumption
-	std::vector<unsigned> power_consumption_list;
-	
-	// start timestamp
-	std::chrono::time_point<std::chrono::system_clock> start_clock;
-};
+std::vector<std::tuple<std::time_t, double, double, double>> measure_power_consumption(
+		const std::function<void(void)> func,
+		const std::time_t interval
+		);
 } // namespace gpu_monitor
 } // namespace mtk
 
