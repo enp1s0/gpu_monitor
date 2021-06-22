@@ -29,10 +29,10 @@ endif
 
 all: $(TARGET_BIN) $(TARGET_LIB)
 
-$(TARGET_BIN):$(SRCDIR)/main.o $(OBJS)
+$(TARGET_BIN):$(OBJDIR)/main.o $(OBJS)
 	$(CXX) $+ $(CXXFLAGS) -o $@
 
-$(TARGET_LIB):$(SRCDIR)/libgpu_monitor.o $(OBJS)
+$(TARGET_LIB):$(OBJDIR)/libgpu_monitor.o $(OBJS)
 	$(CXX) $+ $(CXXFLAGS) -lib -o $@
 
 $(SRCDIR)/%.cpp: $(SRCDIR)/%.cu
@@ -43,4 +43,6 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CXX) $< $(CXXFLAGS) -c -o $@
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(OBJDIR)/*
+	rm -f $(TARGET_LIB)
+	rm -f $(TARGET_BIN)
