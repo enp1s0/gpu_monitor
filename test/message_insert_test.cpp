@@ -1,5 +1,5 @@
 #include <iostream>
-#include <gpu_monitor/gpu_monitor.h>
+#include <gpu_monitor/gpu_monitor.hpp>
 #include <unistd.h>
 
 int main() {

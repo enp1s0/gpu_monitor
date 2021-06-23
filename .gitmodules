@@ -1,6 +1,6 @@
 [submodule "cutf"]
-	path = cutf
+	path = src/cutf
 	url = https://github.com/enp1s0/cutf
 [submodule "hiptf"]
-	path = hiptf
+	path = src/hiptf
 	url = https://github.com/enp1s0/hiptf

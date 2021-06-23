@@ -4,6 +4,9 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <vector>
+#include <chrono>
+#include <functional>
 
 namespace mtk {
 namespace gpu_monitor {
@@ -22,9 +25,21 @@ inline void insert_message(const std::string message) {
 		return;
 	}
 
-	ofs << message << "\n";
+	ofs << "\n" << message;
 	ofs.close();
 }
+
+struct profiling_data {
+	double temperature;
+	double power;
+	std::size_t memory;
+	std::time_t timestamp;
+};
+
+std::vector<profiling_data> measure_power_consumption(
+		const std::function<void(void)> func,
+		const std::time_t interval
+		);
 } // namespace gpu_monitor
 } // namespace mtk
 

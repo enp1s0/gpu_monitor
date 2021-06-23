@@ -14,6 +14,10 @@ std::size_t mtk::gpu_monitor::gpu_monitor_cuda::get_num_devices() const {
 	return cutf::device::get_num_devices();
 }
 
+std::size_t mtk::gpu_monitor::gpu_monitor_cuda::get_current_device() const {
+	return cutf::device::get_device_id();
+}
+
 double mtk::gpu_monitor::gpu_monitor_cuda::get_current_temperature(const unsigned gpu_id) const {
 	nvmlDevice_t device;
 	CUTF_CHECK_ERROR(nvmlDeviceGetHandleByIndex(gpu_id, &device));
