@@ -41,7 +41,10 @@ int main() {
 		max_power       = std::max(max_power      , pr.power      );
 	}
 
+	double elapsed_time = (progiling_result[progiling_result.size() - 1].timestamp - progiling_result[0].timestamp) * 1e-6;
+
 	std::printf("Num data        : %lu\n", progiling_result.size());
 	std::printf("Max power       : %e [W]\n", max_power);
 	std::printf("Max temperature : %e [C]\n", max_temperature);
+	std::printf("Elapsed tiem    : %e [s]\n", elapsed_time);
 }
