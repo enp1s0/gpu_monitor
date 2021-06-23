@@ -6,16 +6,28 @@ This program records GPU temperature, power consumption, used memory while execu
 - C++17 or later
   - This program uses `std::filesystem`
 
-## Build
+## Installation
+
+Build:
 ```bash
 git clone https://github.com/enp1s0/gpu_monitor --recursive
 cd gpu_monitor
-make
+mkdir build
+cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install
+make -j4
+make install
+```
+
+Set environment variables:
+```
+export PATH=/path/to/install/bin:$PATH
+export LIBRARY_PATH=/path/to/install/lib:$LIBRARYU_PATH
+export C_INCLUDE_PATH=/path/to/install/include:$C_INCLUDE_PATH
 ```
 
 ## Usage
 ```bash
-./gpu_monitor ./a.out
+gpu_monitor ./a.out
 ```
 
 Some options are available to specify time interval and output file name.
