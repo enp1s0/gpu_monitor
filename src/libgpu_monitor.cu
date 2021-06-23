@@ -6,7 +6,6 @@
 #include <chrono>
 #include <thread>
 #include <gpu_monitor/gpu_monitor.hpp>
-#include <unistd.h>
 
 #ifdef ACC_CUDA
 #include "gpu_monitor_cuda.hpp"
@@ -16,11 +15,11 @@
 #include "gpu_monitor_hip.hpp"
 #endif
 
-std::vector<std::tuple<std::time_t, double, double, double>> mtk::gpu_monitor::measure_power_consumption(
+std::vector<mtk::gpu_monitor::profiling_data> mtk::gpu_monitor::measure_power_consumption(
 		const std::function<void(void)> func,
 		const std::time_t interval
 		) {
-	std::vector<std::tuple<std::time_t, double, double, double>> profiling_result;
+	std::vector<mtk::gpu_monitor::profiling_data> profiling_result;
 
 #ifdef ACC_CUDA
 	mtk::gpu_monitor::gpu_monitor_cuda gpu_monitor;
@@ -33,8 +32,12 @@ std::vector<std::tuple<std::time_t, double, double, double>> mtk::gpu_monitor::m
 	// Output log
 	unsigned count = 0;
 
+	int semaphore = 1;
+
 	// Start target thread
-	std::thread thread(func);
+	std::thread thread(
+			[&](){func();semaphore = 0;}
+			);
 
 	// Start measurement
 	const auto start_clock = std::chrono::high_resolution_clock::now();
@@ -48,14 +51,16 @@ std::vector<std::tuple<std::time_t, double, double, double>> mtk::gpu_monitor::m
 		const auto memory_consumption = gpu_monitor.get_current_used_memory(gpu_id);
 
 		const auto end_clock_1 = std::chrono::high_resolution_clock::now();
-		const auto elapsed_time_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_clock_1 - start_clock).count();
+		const auto elapsed_time_1 = std::chrono::duration_cast<std::chrono::milliseconds>(end_clock_1 - start_clock).count();
 
 		// Store data
-		profiling_result.push_back(std::make_tuple(temperature, power, memory_consumption, static_cast<std::time_t>(elapsed_time_1)));
+		profiling_result.push_back(mtk::gpu_monitor::profiling_data{temperature, power, memory_consumption, static_cast<std::time_t>(elapsed_time)});
 
 		// Sleep
-		usleep(std::max<std::time_t>(interval * 1000 * count, elapsed_time_1) - elapsed_time_1);
-	} while (!thread.joinable());
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(std::chrono::milliseconds(std::max<std::time_t>(static_cast<int>(interval) * count, elapsed_time_1) - elapsed_time_1));
+		count++;
+	} while (semaphore);
 
 	thread.join();
 

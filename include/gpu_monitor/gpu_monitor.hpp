@@ -6,7 +6,6 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#include <tuple>
 #include <functional>
 
 namespace mtk {
@@ -30,7 +29,14 @@ inline void insert_message(const std::string message) {
 	ofs.close();
 }
 
-std::vector<std::tuple<std::time_t, double, double, double>> measure_power_consumption(
+struct profiling_data {
+	double temperature;
+	double power;
+	std::size_t memory;
+	std::time_t timestamp;
+};
+
+std::vector<profiling_data> measure_power_consumption(
 		const std::function<void(void)> func,
 		const std::time_t interval
 		);
