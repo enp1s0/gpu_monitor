@@ -13,7 +13,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <gpu_monitor/gpu_monitor.h>
+#include <gpu_monitor/gpu_monitor.hpp>
 
 #ifdef ACC_CUDA
 #include "gpu_monitor_cuda.hpp"

@@ -62,7 +62,7 @@ This library provides embedded profiling library.
 #include <gpu_monitor/gpu_monitor.hpp>
 
 void func() {
-    mtk::gpu_monitor::measure_power_consumption(
+    const auto profiling_result = mtk::gpu_monitor::measure_power_consumption(
         [&]() {
             // some GPU code
             cudaDeviceSynchronize();
@@ -71,6 +71,8 @@ void func() {
     );
 }
 ```
+
+See [sample code](./test/api.cu).
 
 ## License
 
