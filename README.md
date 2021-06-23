@@ -21,7 +21,8 @@ make install
 Set environment variables:
 ```
 export PATH=/path/to/install/bin:$PATH
-export LIBRARY_PATH=/path/to/install/lib:$LIBRARYU_PATH
+export LIBRARY_PATH=/path/to/install/lib:$LIBRARY_PATH
+export LD_LIBRARY_PATH=/path/to/install/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=/path/to/install/include:$C_INCLUDE_PATH
 ```
 
