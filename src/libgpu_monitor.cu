@@ -5,7 +5,7 @@
 #include <ctime>
 #include <chrono>
 #include <thread>
-#include <gpu_monitor/gpu_monitor.h>
+#include <gpu_monitor/gpu_monitor.hpp>
 #include <unistd.h>
 
 #ifdef ACC_CUDA
