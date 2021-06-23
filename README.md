@@ -32,12 +32,12 @@ gpu_monitor ./a.out
 
 Some options are available to specify time interval and output file name.
 ```bash
-./gpu_monitor [-i interval(ms){default=100}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=0}] target_command
+gpu_monitor [-i interval(ms){default=100}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=0}] target_command
 ```
 
 e.g.
 ```bash
-./gpu_monitor -i 100 -o report.csv -g 0,2,4 ./a.out
+gpu_monitor -i 100 -o report.csv -g 0,2,4 ./a.out
 ```
 
 ## Insert messages to output file
@@ -46,11 +46,29 @@ You can use GPU Monitor API to insert messages to output file.
 
 ```cpp
 // g++ -std=c++11 -I/path/to/gpu_monitor/include ...
-#include <gpu_monito/gpu_monitor.h>
+#include <gpu_monitor/gpu_monitor.hpp>
 
 int main() {
     // ...
     mtk::gpu_monitor::insert_message("Hello, world!");
+}
+```
+
+## C++ Library
+This library provides embedded profiling library.
+```cpp
+// main.cu
+// Build: nvcc main.cu -lgpu_monitor ...
+#include <gpu_monitor/gpu_monitor.hpp>
+
+void func() {
+    mtk::gpu_monitor::measure_power_consumption(
+        [&]() {
+            // some GPU code
+            cudaDeviceSynchronize();
+        },
+        20, // interval [ms]
+    );
 }
 ```
 
