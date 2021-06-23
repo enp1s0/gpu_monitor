@@ -58,7 +58,7 @@ int main() {
 This library provides embedded profiling library.
 ```cpp
 // main.cu
-// Build: nvcc main.cu -lgpu_monitor ...
+// Build: nvcc main.cu -lgpu_monitor -lnvidia-ml ...
 #include <gpu_monitor/gpu_monitor.hpp>
 
 void func() {
