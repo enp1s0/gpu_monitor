@@ -205,3 +205,28 @@ int main(int argc, char** argv) {
 
 	std::filesystem::remove(message_file_path);
 }
+
+double mtk::gpu_monitor::get_integrated_power_consumption(
+		const std::vector<mtk::gpu_monitor::profiling_data>& profiling_data_list
+		) {
+	if (profiling_data_list.size() == 0) {
+		return 0.0;
+	}
+
+	double power_consumption = 0.;
+	for (unsigned i = 1; i < profiling_data_list.size(); i++) {
+		const auto elapsed_time = (profiling_data_list[i].timestamp - profiling_data_list[i - 1].timestamp) * 1e-6;
+		// trapeziodal integration
+		power_consumption += (profiling_data_list[i].power + profiling_data_list[i - 1].power) / 2 * elapsed_time;
+	}
+	return power_consumption;
+}
+
+double mtk::gpu_monitor::get_elapsed_time(
+		const std::vector<mtk::gpu_monitor::profiling_data>& profiling_data_list
+		) {
+	if (profiling_data_list.size() == 0) {
+		return 0.0;
+	}
+	return (profiling_data_list[profiling_data_list.size() - 1].timestamp - profiling_data_list[0].timestamp) * 1e-6;
+}
