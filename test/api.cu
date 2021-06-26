@@ -47,7 +47,7 @@ int main() {
 	std::printf("Num data        : %lu\n", profiling_result.size());
 	std::printf("Max power       : %e [W]\n", max_power);
 	std::printf("Int power       : %e [J]\n", integrated_power_consumption);
-	std::printf("Avg power       : %e [J]\n", integrated_power_consumption / elapsed_time);
+	std::printf("Avg power       : %e [W]\n", integrated_power_consumption / elapsed_time);
 	std::printf("Max temperature : %e [C]\n", max_temperature);
 	std::printf("Elapsed tiem    : %e [s]\n", elapsed_time);
 }

@@ -36,7 +36,6 @@ add_library(gpu_monitor SHARED
 	)
 
 target_link_libraries(gpu_monitor PRIVATE
-		cuda
 		nvidia-ml
 		)
 
@@ -62,7 +61,6 @@ add_executable(gpu_monitor-bin
 	)
 
 target_link_libraries(gpu_monitor-bin PRIVATE
-		cuda
 		nvidia-ml
 		stdc++fs
 		)
