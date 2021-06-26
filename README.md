@@ -73,7 +73,7 @@ void func() {
 }
 ```
 
-See [sample code](./test/api.cu).
+See [sample code](./test/api.cu) for more information.
 
 ## License
 

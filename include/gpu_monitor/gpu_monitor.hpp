@@ -29,6 +29,9 @@ inline void insert_message(const std::string message) {
 	ofs.close();
 }
 
+// ---------------------------------------
+// C++ API
+// ---------------------------------------
 struct profiling_data {
 	double temperature;
 	double power;
@@ -40,6 +43,16 @@ std::vector<profiling_data> measure_power_consumption(
 		const std::function<void(void)> func,
 		const std::time_t interval
 		);
+
+double get_integrated_power_consumption(
+		const std::vector<profiling_data>& profiling_data_list
+		);
+
+double get_elapsed_time(
+		const std::vector<profiling_data>& profiling_data_list
+		);
+
+
 } // namespace gpu_monitor
 } // namespace mtk
 
