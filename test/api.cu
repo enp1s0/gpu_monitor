@@ -28,7 +28,7 @@ int main() {
 	};
 
 	// Profiling
-	const auto progiling_result = mtk::gpu_monitor::measure_power_consumption(
+	const auto profiling_result = mtk::gpu_monitor::measure_power_consumption(
 			lauch_gemm,
 			20
 			);
@@ -36,15 +36,18 @@ int main() {
 	// Get max temperature and power
 	double max_temperature = 0.;
 	double max_power = 0.;
-	for (const auto& pr : progiling_result) {
+	for (const auto& pr : profiling_result) {
 		max_temperature = std::max(max_temperature, pr.temperature);
 		max_power       = std::max(max_power      , pr.power      );
 	}
 
-	double elapsed_time = (progiling_result[progiling_result.size() - 1].timestamp - progiling_result[0].timestamp) * 1e-6;
+	const auto elapsed_time = mtk::gpu_monitor::get_elapsed_time(profiling_result);
+	const auto integrated_power_consumption = mtk::gpu_monitor::get_integrated_power_consumption(profiling_result);
 
-	std::printf("Num data        : %lu\n", progiling_result.size());
+	std::printf("Num data        : %lu\n", profiling_result.size());
 	std::printf("Max power       : %e [W]\n", max_power);
+	std::printf("Int power       : %e [J]\n", integrated_power_consumption);
+	std::printf("Avg power       : %e [J]\n", integrated_power_consumption / elapsed_time);
 	std::printf("Max temperature : %e [C]\n", max_temperature);
 	std::printf("Elapsed tiem    : %e [s]\n", elapsed_time);
 }
