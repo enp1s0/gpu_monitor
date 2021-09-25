@@ -41,6 +41,12 @@ e.g.
 gpu_monitor -i 100 -o report.csv -g 0,2,4 ./a.out
 ```
 
+## Visualization
+
+You can use `script/mk_graph.csv` to visualize the monitoring result.
+
+![sample](./docs/gpu.png)
+
 ## Insert messages to output file
 
 You can use GPU Monitor API to insert messages to output file.
