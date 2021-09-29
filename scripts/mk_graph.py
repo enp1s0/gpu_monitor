@@ -69,7 +69,7 @@ line_list, label_list = draw_memory_usage_graph(ax2, gpu_ids)
 fig.legend(line_list,
         labels=label_list,
         loc='upper center',
-        ncol=1,
+        ncol=len(gpu_ids),
         bbox_to_anchor=(0.8, 1.2),
         bbox_transform=ax1.transAxes
         )
