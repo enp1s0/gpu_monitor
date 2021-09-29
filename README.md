@@ -45,7 +45,7 @@ gpu_monitor -i 100 -o report.csv -g 0,2,4 ./a.out
 
 ## Visualization
 
-You can use `scripts/mk_graph.py` to visualize the monitoring result. [detail](./scripts/README.md)
+You can use `scripts/mk_graph.py` to visualize the monitoring result. [[detail]](./scripts/)
 
 ![sample](./docs/gpu.png)
 
