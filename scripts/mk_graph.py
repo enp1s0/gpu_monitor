@@ -2,11 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import pandas as pd
+import argparse
 import os
 
-input_name = 'gpu.csv'
-output_name = 'gpu.pdf'
-gpu_ids = [0]
+parser = argparse.ArgumentParser(description='GPU Monitor')
+parser.add_argument('-i', '--input', type=str, help='Input CSV file path', required=True)
+parser.add_argument('-o', '--output', type=str, help='Output file path', default='gpu_monitor.pdf')
+parser.add_argument('-g', '--gpus', type=int, help='GPU IDs to plot', nargs="+", default=[0])
+args = parser.parse_args()
+
+input_name = args.input
+output_name = args.output
+gpu_ids = args.gpus
 
 def draw_memory_usage_graph(ax, gpu_ids):
     ax.grid()
