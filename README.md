@@ -1,6 +1,7 @@
 # GPU Monitor
 
-This program records GPU temperature, power consumption, used memory while executing some commands.
+This program records GPU temperature, power consumption, memory usage while executing programs on GPUs.
+It also provides C++ API.
 
 ## Requirements
 - C++17 or later
@@ -21,6 +22,7 @@ make install
 Set environment variables:
 ```
 export PATH=/path/to/install/bin:$PATH
+# When you use the C++ API, please set following environment variables:
 export LIBRARY_PATH=/path/to/install/lib:$LIBRARY_PATH
 export LD_LIBRARY_PATH=/path/to/install/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=/path/to/install/include:$C_INCLUDE_PATH
@@ -43,7 +45,7 @@ gpu_monitor -i 100 -o report.csv -g 0,2,4 ./a.out
 
 ## Visualization
 
-You can use `script/mk_graph.py` to visualize the monitoring result.
+You can use `scripts/mk_graph.py` to visualize the monitoring result. [detail](./scripts/README.md)
 
 ![sample](./docs/gpu.png)
 
