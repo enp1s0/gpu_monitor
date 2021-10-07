@@ -34,10 +34,11 @@ std::vector<unsigned> get_gpu_ids(const std::string str) {
 	return result;
 }
 
-void parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int argc, char** argv) {
+void parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int& set_default_gpus, int argc, char** argv) {
 	run_command_head = 1;
 	output_file_name = "gpu.csv";
 	time_interval = 100;
+	set_default_gpus = 0;
 	gpu_ids = std::vector<unsigned>{0};
 	for (int i = 1; i < argc;) {
 		if (std::string(argv[i]) == "-i") {
@@ -56,7 +57,10 @@ void parse_params(unsigned &time_interval, std::string& output_file_name, std::v
 			if (i + 1 >= argc) {
 				throw std::runtime_error("The value of `-g` was not provided");
 			}
-			gpu_ids = get_gpu_ids(argv[i+1]);
+			if (std::string(argv[i+1]) != "ALL") {
+				gpu_ids = get_gpu_ids(argv[i+1]);
+				set_default_gpus = 1;
+			}
 			i += 2;
 		} else if (std::string(argv[i]) == "-h") {
 			time_interval = 0; // This means that this execution is invalid and exits with printing help messages.
@@ -71,7 +75,7 @@ void print_help_message(const char* const program_name) {
 	std::printf("/*** GPU Logger ***/\n");
 	std::printf("\n");
 	std::printf("// Usage\n");
-	std::printf("%s [-i interval(ms){default=100}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=0}] target_command\n", program_name);
+	std::printf("%s [-i interval(ms){default=100}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=ALL}] target_command\n", program_name);
 }
 
 namespace process {
@@ -105,8 +109,9 @@ int main(int argc, char** argv) {
 	unsigned time_interval;
 	std::vector<unsigned> gpu_ids;
 	int run_command_head;
+	int set_default_gpus;
 
-	parse_params(time_interval, output_file_name, gpu_ids, run_command_head, argc, argv);
+	parse_params(time_interval, output_file_name, gpu_ids, run_command_head, set_default_gpus, argc, argv);
 
 	if (time_interval < 1 || argc <= 1) {
 		print_help_message(argv[0]);
@@ -135,6 +140,13 @@ int main(int argc, char** argv) {
 		gpu_monitor.init();
 		std::ofstream ofs(output_file_name);
 		const auto num_devices = gpu_monitor.get_num_devices();
+
+		if (set_default_gpus) {
+			gpu_ids = std::vector<unsigned>(num_devices);
+			for (unsigned i = 0; i < num_devices; i++) {
+				gpu_ids[i] = i;
+			}
+		}
 
 		// Validate given gpu ids
 		bool invalid_gpu_ids = false;
