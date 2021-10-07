@@ -4,6 +4,7 @@ This python extension insert messages to the csv log file from Python code.
 
 ## Installation
 ```bash
+pip install -r requirements.txt
 pip install .
 ```
 
