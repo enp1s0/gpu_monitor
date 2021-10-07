@@ -1,7 +1,10 @@
 # GPU Monitor
 
 This program records GPU temperature, power consumption, memory usage while executing programs on GPUs.
-It also provides C++ API.
+The output is written to a CSV file.
+It also provides the following features:
+- C++ API allows us to measure these metrics while running a function.
+- C++ and Python methods for inserting messages to the CSV file.
 
 ## Requirements
 - C++17 or later
@@ -51,6 +54,7 @@ You can use `scripts/mk_graph.py` to visualize the monitoring result. [[detail]]
 
 ## Insert messages to output file
 
+### C++
 You can use GPU Monitor API to insert messages to output file.
 
 ```cpp
@@ -62,6 +66,10 @@ int main() {
     mtk::gpu_monitor::insert_message("Hello, world!");
 }
 ```
+
+### Python
+
+See [Python extension](./python_extension) page.
 
 ## C++ Library
 This library provides embedded profiling library.
