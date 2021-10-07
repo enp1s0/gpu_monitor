@@ -16,3 +16,8 @@ gpu_monitor.insert_message("Start func A")
 # Func A
 gpu_monitor.insert_message("End func A")
 ```
+
+## Test
+```bash
+gpu_monitor python tests/main.py
+```
