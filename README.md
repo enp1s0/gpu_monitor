@@ -38,7 +38,17 @@ gpu_monitor ./a.out
 
 Some options are available to specify time interval and output file name.
 ```bash
-gpu_monitor [-i interval(ms){default=100}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=ALL}] target_command
+gpu_monitor [-i interval(ms){default=100}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=ALL}] [-r] target_command
+```
+- '-r' option turns on printing result message.  
+e.g.
+```
+##### GPU Monitoring result #####
+-       time : 1.0 [s]
+## GPU 0
+-   max temp : 53.0 [C]
+-  max power : 86.3 [W]
+-    max mem : 3.81446e+00 [GB]
 ```
 
 e.g.
