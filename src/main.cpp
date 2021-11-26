@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
 		std::ofstream ofs(output_file_name);
 		const auto num_devices = gpu_monitor.get_num_devices();
 
-		if (set_default_gpus) {
+		if (set_default_gpus == 0) {
 			gpu_ids = std::vector<unsigned>(num_devices);
 			for (unsigned i = 0; i < num_devices; i++) {
 				gpu_ids[i] = i;
