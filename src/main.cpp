@@ -34,12 +34,13 @@ std::vector<unsigned> get_gpu_ids(const std::string str) {
 	return result;
 }
 
-void parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int& set_default_gpus, int argc, char** argv) {
+void parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int& set_default_gpus, int& print_result, int argc, char** argv) {
 	run_command_head = 1;
 	output_file_name = "gpu.csv";
 	time_interval = 100;
 	set_default_gpus = 0;
 	gpu_ids = std::vector<unsigned>{0};
+	print_result = 0;
 	for (int i = 1; i < argc;) {
 		if (std::string(argv[i]) == "-i") {
 			if (i + 1 >= argc) {
@@ -62,6 +63,9 @@ void parse_params(unsigned &time_interval, std::string& output_file_name, std::v
 				set_default_gpus = 1;
 			}
 			i += 2;
+		} else if (std::string(argv[i]) == "-r") {
+			print_result = 1;
+			i += 1;
 		} else if (std::string(argv[i]) == "-h") {
 			time_interval = 0; // This means that this execution is invalid and exits with printing help messages.
 		} else {
@@ -110,8 +114,9 @@ int main(int argc, char** argv) {
 	std::vector<unsigned> gpu_ids;
 	int run_command_head;
 	int set_default_gpus;
+	int print_result;
 
-	parse_params(time_interval, output_file_name, gpu_ids, run_command_head, set_default_gpus, argc, argv);
+	parse_params(time_interval, output_file_name, gpu_ids, run_command_head, set_default_gpus, print_result, argc, argv);
 
 	if (time_interval < 1 || argc <= 1) {
 		print_help_message(argv[0]);
@@ -171,6 +176,14 @@ int main(int argc, char** argv) {
 		ofs << "\n";
 		ofs.close();
 
+		// record max power, temperature, memory usage
+		std::vector<double> max_power(gpu_ids.size());
+		for (auto& max_power_v : max_power) max_power_v = 0.0;
+		std::vector<double> max_temperature(gpu_ids.size());
+		for (auto& max_temperature_v : max_temperature) max_temperature_v = 0.0;
+		std::vector<std::size_t> max_memory_usage(gpu_ids.size());
+		for (auto& max_memory_usage_v : max_memory_usage) max_memory_usage_v = 0lu;
+
 		// Output log
 		unsigned count = 0;
 		const auto start_clock = std::chrono::high_resolution_clock::now();
@@ -182,9 +195,15 @@ int main(int argc, char** argv) {
 			const auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count();
 			ofs << elapsed_time << ",";
 			for (const auto gpu_id : gpu_ids) {
-				ofs << gpu_monitor.get_current_temperature(gpu_id) << ","
-					<< gpu_monitor.get_current_power(gpu_id) << ","
-					<< gpu_monitor.get_current_used_memory(gpu_id) << ",";
+				const auto power = gpu_monitor.get_current_power(gpu_id);
+				const auto temperature = gpu_monitor.get_current_temperature(gpu_id);
+				const auto memory_usage = gpu_monitor.get_current_used_memory(gpu_id);
+				ofs << temperature << ","
+					<< power << ","
+					<< memory_usage << ",";
+				max_power[gpu_id] = std::max(max_power[gpu_id], power);
+				max_temperature[gpu_id] = std::max(max_temperature[gpu_id], temperature);
+				max_memory_usage[gpu_id] = std::max(max_memory_usage[gpu_id], memory_usage);
 			}
 			ofs << "\n";
 			insert_message(message_file_path, ofs);
@@ -195,6 +214,21 @@ int main(int argc, char** argv) {
 		} while ((*semaphore) == process::running);
 
 		gpu_monitor.shutdown();
+
+		if (print_result) {
+			std::printf(
+				"##### GPU Monitoring result #####\n"
+				);
+			const auto end_clock = std::chrono::high_resolution_clock::now();
+			const auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count() * 1e-6;
+			std::printf("- %10s : %.1f [s]\n", "time", elapsed_time);
+			for (const auto gpu_id : gpu_ids) {
+				std::printf("## GPU %u\n", gpu_id);
+				std::printf("- %10s : %2.1f [C]\n", "max temp", max_temperature[gpu_id]);
+				std::printf("- %10s : %2.1f [W]\n", "max power", max_power[gpu_id]);
+				std::printf("- %10s : %.5e [GB]\n", "max mem", max_memory_usage[gpu_id] / 1e9);
+			}
+		}
 
 		exit(0);
 	} else {
