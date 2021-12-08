@@ -34,7 +34,7 @@ std::vector<unsigned> get_gpu_ids(const std::string str) {
 	return result;
 }
 
-void parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int& set_default_gpus, int& print_result, int argc, char** argv) {
+int parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int& set_default_gpus, int& print_result, int argc, char** argv) {
 	run_command_head = 1;
 	output_file_name = "gpu.csv";
 	time_interval = 100;
@@ -68,11 +68,16 @@ void parse_params(unsigned &time_interval, std::string& output_file_name, std::v
 			i += 1;
 		} else if (std::string(argv[i]) == "-h") {
 			time_interval = 0; // This means that this execution is invalid and exits with printing help messages.
+		} else if (std::string(argv[i]).substr(0, 1) == "-") {
+			const std::string error_message = "Not supported option : " + std::string(argv[i]);
+			std::fprintf(stderr, "[GPU logger ERROR] %s\n", error_message.c_str());
+			return 1;
 		} else {
 			run_command_head = i;
-			return;
+			break;
 		}
 	}
+	return 0;
 }
 
 void print_help_message(const char* const program_name) {
