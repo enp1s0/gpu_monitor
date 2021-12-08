@@ -121,7 +121,10 @@ int main(int argc, char** argv) {
 	int set_default_gpus;
 	int print_result;
 
-	parse_params(time_interval, output_file_name, gpu_ids, run_command_head, set_default_gpus, print_result, argc, argv);
+	const auto res = parse_params(time_interval, output_file_name, gpu_ids, run_command_head, set_default_gpus, print_result, argc, argv);
+	if (res > 0) {
+		return 1;
+	}
 
 	if (time_interval < 1 || argc <= 1) {
 		print_help_message(argv[0]);
