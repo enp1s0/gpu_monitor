@@ -28,7 +28,7 @@ add_definitions(-DACC_CUDA)
 # Library
 ##########################################################################
 
-add_library(gpu_monitor SHARED
+add_library(gpu_monitor STATIC
 	${SRCDIR}/gpu_monitor_cuda.cu
 	${SRCDIR}/gpu_monitor_cuda.hpp
 	${SRCDIR}/gpu_monitor.hpp
