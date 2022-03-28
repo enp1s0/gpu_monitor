@@ -58,14 +58,14 @@ gpu_monitor -i 100 -o report.csv -g 0,2,4 ./a.out
 
 ## Visualization
 
-You can use `scripts/mk_graph.py` to visualize the monitoring result. [[detail]](./scripts/)
+`scripts/mk_graph.py` visualizes the monitoring result. [[detail]](./scripts/)
 
 ![sample](./docs/gpu.png)
 
 ## Insert messages to output file
 
 ### C++
-You can use GPU Monitor API to insert messages to output file.
+The GPU Monitor API can insert messages to output file.
 
 ```cpp
 // g++ -std=c++11 -I/path/to/gpu_monitor/include ...
@@ -85,7 +85,7 @@ See [Python extension](./python_extension) page.
 This library provides embedded profiling library.
 ```cpp
 // main.cu
-// Build: nvcc main.cu -lgpu_monitor -lnvidia-ml ...
+// Build: nvcc main.cu -L/path/to/build/or/install_dir/lib -lgpu_monitor -lnvidia-ml ...
 #include <gpu_monitor/gpu_monitor.hpp>
 
 void func() {
