@@ -128,6 +128,18 @@ int main(int argc, char** argv) {
 
 	if (time_interval < 1 || argc <= 1) {
 		print_help_message(argv[0]);
+#ifdef ACC_CUDA
+		mtk::gpu_monitor::gpu_monitor_cuda gpu_monitor;
+#endif
+#ifdef ACC_HIP
+		mtk::gpu_monitor::gpu_monitor_hip gpu_monitor;
+#endif
+		const auto gpu_list = gpu_monitor.get_gpu_list();
+		std::printf("\n");
+		std::printf("// GPU List\n");
+		for (const auto& p : gpu_list) {
+			std::printf("%2u : %s\n", p.first, p.second.c_str());
+		}
 		return 1;
 	}
 

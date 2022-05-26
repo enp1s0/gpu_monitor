@@ -1,5 +1,6 @@
 #include <cutf/device.hpp>
 #include <cutf/nvml.hpp>
+#include <cutf/device.hpp>
 #include "gpu_monitor_cuda.hpp"
 
 void mtk::gpu_monitor::gpu_monitor_cuda::init() {
@@ -43,4 +44,16 @@ std::size_t mtk::gpu_monitor::gpu_monitor_cuda::get_current_used_memory(const un
 	CUTF_CHECK_ERROR(nvmlDeviceGetMemoryInfo(device, &memory));
 
 	return memory.used;
+}
+
+std::vector<std::pair<unsigned, std::string>> mtk::gpu_monitor::gpu_monitor_cuda::get_gpu_list() const {
+	const auto props = cutf::device::get_properties_vector();
+
+	std::vector<std::pair<unsigned, std::string>> res;
+	unsigned device_id = 0;
+	for (const auto& p : props) {
+		res.push_back(std::make_pair<unsigned, std::string>(device_id++, p.name));
+	}
+
+	return res;
 }

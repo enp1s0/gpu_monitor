@@ -15,6 +15,8 @@ public:
 	double get_current_temperature(const unsigned gpu_id) const;
 	double get_current_power(const unsigned gpu_id) const;
 	std::size_t get_current_used_memory(const unsigned gpu_id) const;
+
+	std::vector<std::pair<unsigned, std::string>> get_gpu_list() const;
 };
 } // namespace gpu_monitor
 } // namespace mtk
