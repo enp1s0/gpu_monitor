@@ -67,7 +67,7 @@ int parse_params(unsigned &time_interval, std::string& output_file_name, std::ve
 			print_result = 1;
 			i += 1;
 		} else if (std::string(argv[i]) == "-h") {
-			time_interval = 0; // This means that this execution is invalid and exits with printing help messages.
+			return 1;
 		} else if (std::string(argv[i]).substr(0, 1) == "-") {
 			const std::string error_message = "Not supported option : " + std::string(argv[i]);
 			std::fprintf(stderr, "[GPU logger ERROR] %s\n", error_message.c_str());
@@ -122,12 +122,23 @@ int main(int argc, char** argv) {
 	int print_result;
 
 	const auto res = parse_params(time_interval, output_file_name, gpu_ids, run_command_head, set_default_gpus, print_result, argc, argv);
-	if (res > 0) {
-		return 1;
-	}
 
-	if (time_interval < 1 || argc <= 1) {
+	if (res > 0 || time_interval < 1 || argc <= 1) {
 		print_help_message(argv[0]);
+#ifdef ACC_CUDA
+		mtk::gpu_monitor::gpu_monitor_cuda gpu_monitor;
+#endif
+#ifdef ACC_HIP
+		mtk::gpu_monitor::gpu_monitor_hip gpu_monitor;
+#endif
+		gpu_monitor.init();
+		const auto gpu_list = gpu_monitor.get_gpu_list();
+		std::printf("\n");
+		std::printf("// GPU List\n");
+		for (const auto& p : gpu_list) {
+			std::printf("%2u : %s\n", p.first, p.second.c_str());
+		}
+		gpu_monitor.shutdown();
 		return 1;
 	}
 
