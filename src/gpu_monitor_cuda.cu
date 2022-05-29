@@ -21,27 +21,27 @@ std::size_t mtk::gpu_monitor::gpu_monitor_cuda::get_current_device() const {
 
 double mtk::gpu_monitor::gpu_monitor_cuda::get_current_temperature(const unsigned gpu_id) const {
 	nvmlDevice_t device;
-	CUTF_CHECK_ERROR(nvmlDeviceGetHandleByIndex(gpu_id, &device));
+	CUTF_CHECK_ERROR_M(nvmlDeviceGetHandleByIndex(gpu_id, &device), "GPU ID = " + std::to_string(gpu_id));
 	unsigned int temperature;
-	CUTF_CHECK_ERROR(nvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature));
+	CUTF_CHECK_ERROR_M(nvmlDeviceGetTemperature(device, NVML_TEMPERATURE_GPU, &temperature), "GPU ID = " + std::to_string(gpu_id));
 
 	return temperature;
 }
 
 double mtk::gpu_monitor::gpu_monitor_cuda::get_current_power(const unsigned gpu_id) const {
 	nvmlDevice_t device;
-	CUTF_CHECK_ERROR(nvmlDeviceGetHandleByIndex(gpu_id, &device));
+	CUTF_CHECK_ERROR_M(nvmlDeviceGetHandleByIndex(gpu_id, &device), "GPU ID = " + std::to_string(gpu_id));
 	unsigned int power;
-	CUTF_CHECK_ERROR(nvmlDeviceGetPowerUsage(device, &power));
+	CUTF_CHECK_ERROR_M(nvmlDeviceGetPowerUsage(device, &power), "GPU ID = " + std::to_string(gpu_id));
 
 	return power / 1000.0;
 }
 
 std::size_t mtk::gpu_monitor::gpu_monitor_cuda::get_current_used_memory(const unsigned gpu_id) const {
 	nvmlDevice_t device;
-	CUTF_CHECK_ERROR(nvmlDeviceGetHandleByIndex(gpu_id, &device));
+	CUTF_CHECK_ERROR_M(nvmlDeviceGetHandleByIndex(gpu_id, &device), "GPU ID = " + std::to_string(gpu_id));
 	nvmlMemory_t memory;
-	CUTF_CHECK_ERROR(nvmlDeviceGetMemoryInfo(device, &memory));
+	CUTF_CHECK_ERROR_M(nvmlDeviceGetMemoryInfo(device, &memory), "GPU ID = " + std::to_string(gpu_id));
 
 	return memory.used;
 }
