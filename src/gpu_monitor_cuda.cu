@@ -50,9 +50,14 @@ std::vector<std::pair<unsigned, std::string>> mtk::gpu_monitor::gpu_monitor_cuda
 	const auto props = cutf::device::get_properties_vector();
 
 	std::vector<std::pair<unsigned, std::string>> res;
-	unsigned device_id = 0;
-	for (const auto& p : props) {
-		res.push_back(std::make_pair<unsigned, std::string>(device_id++, p.name));
+	unsigned num_devices = 0;
+	CUTF_CHECK_ERROR(nvmlDeviceGetCount(&num_devices));
+	for (unsigned i = 0; i < num_devices; i++) {
+		nvmlDevice_t device;
+		CUTF_CHECK_ERROR(nvmlDeviceGetHandleByIndex(i, &device));
+		char name_buffer[256];
+		CUTF_CHECK_ERROR(nvmlDeviceGetName(device, name_buffer, sizeof(name_buffer)));
+		res.push_back(std::pair<unsigned, std::string>{i, std::string(name_buffer)});
 	}
 
 	return res;
