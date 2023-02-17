@@ -203,6 +203,13 @@ int main(int argc, char** argv) {
 		std::vector<std::size_t> max_memory_usage(gpu_ids.size());
 		for (auto& max_memory_usage_v : max_memory_usage) max_memory_usage_v = 0lu;
 
+		std::vector<double> sum_power(gpu_ids.size());
+		for (auto& sum_power_v : sum_power) sum_power_v = 0.0;
+		std::vector<double> sum_temperature(gpu_ids.size());
+		for (auto& sum_temperature_v : sum_temperature) sum_temperature_v = 0.0;
+		std::vector<std::size_t> sum_memory_usage(gpu_ids.size());
+		for (auto& sum_memory_usage_v : sum_memory_usage) sum_memory_usage_v = 0lu;
+
 		// Output log
 		unsigned count = 0;
 		const auto start_clock = std::chrono::high_resolution_clock::now();
@@ -220,9 +227,12 @@ int main(int argc, char** argv) {
 				ofs << temperature << ","
 					<< power << ","
 					<< memory_usage << ",";
-				max_power[gpu_id] = std::max(max_power[gpu_id], power);
-				max_temperature[gpu_id] = std::max(max_temperature[gpu_id], temperature);
+				max_power       [gpu_id] = std::max(max_power       [gpu_id], power);
+				max_temperature [gpu_id] = std::max(max_temperature [gpu_id], temperature);
 				max_memory_usage[gpu_id] = std::max(max_memory_usage[gpu_id], memory_usage);
+				sum_power       [gpu_id] += power;
+				sum_temperature [gpu_id] += temperature;
+				sum_memory_usage[gpu_id] += memory_usage;
 			}
 			ofs << "\n";
 			insert_message(message_file_path, ofs);
@@ -242,10 +252,15 @@ int main(int argc, char** argv) {
 			const auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count() * 1e-6;
 			std::printf("- %10s : %.1f [s]\n", "time", elapsed_time);
 			for (const auto gpu_id : gpu_ids) {
-				std::printf("## GPU %u\n", gpu_id);
-				std::printf("- %10s : %2.1f [C]\n", "max temp", max_temperature[gpu_id]);
-				std::printf("- %10s : %2.1f [W]\n", "max power", max_power[gpu_id]);
-				std::printf("- %10s : %.5e [GB]\n", "max mem", max_memory_usage[gpu_id] / 1e9);
+				std::printf("## ----- GPU %u -----\n", gpu_id);
+				std::printf("# Temperature\n");
+				std::printf("- %3s : %2.1f [C]\n", "max", max_temperature[gpu_id]);
+				std::printf("- %3s : %2.1f [C]\n", "avg", sum_temperature[gpu_id] / count);
+				std::printf("# Power\n");
+				std::printf("- %3s : %2.1f [W]\n", "max", max_power[gpu_id]);
+				std::printf("- %3s : %2.1f [W]\n", "avg", sum_power[gpu_id] / count);
+				std::printf("# Memory\n");
+				std::printf("- %3s : %.5e [GB]\n", "max", max_memory_usage[gpu_id] / 1e9);
 			}
 		}
 
