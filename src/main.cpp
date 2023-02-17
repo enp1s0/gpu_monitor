@@ -252,12 +252,15 @@ int main(int argc, char** argv) {
 			const auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_clock - start_clock).count() * 1e-6;
 			std::printf("- %10s : %.1f [s]\n", "time", elapsed_time);
 			for (const auto gpu_id : gpu_ids) {
-				std::printf("## GPU %u\n", gpu_id);
-				std::printf("- %10s : %2.1f [C]\n", "max temp", max_temperature[gpu_id]);
-				std::printf("- %10s : %2.1f [C]\n", "avg temp", sum_temperature[gpu_id] / count);
-				std::printf("- %10s : %2.1f [W]\n", "max power", max_power[gpu_id]);
-				std::printf("- %10s : %2.1f [W]\n", "avg power", sum_power[gpu_id] / count);
-				std::printf("- %10s : %.5e [GB]\n", "max mem", max_memory_usage[gpu_id] / 1e9);
+				std::printf("## ----- GPU %u -----\n", gpu_id);
+				std::printf("# Temperature\n");
+				std::printf("- %3s : %2.1f [C]\n", "max", max_temperature[gpu_id]);
+				std::printf("- %3s : %2.1f [C]\n", "avg", sum_temperature[gpu_id] / count);
+				std::printf("# Power\n");
+				std::printf("- %3s : %2.1f [W]\n", "max", max_power[gpu_id]);
+				std::printf("- %3s : %2.1f [W]\n", "avg", sum_power[gpu_id] / count);
+				std::printf("# Memory\n");
+				std::printf("- %3s : %.5e [GB]\n", "max", max_memory_usage[gpu_id] / 1e9);
 			}
 		}
 
