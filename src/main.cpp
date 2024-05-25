@@ -34,6 +34,19 @@ std::vector<unsigned> get_gpu_ids(const std::string str) {
 	return result;
 }
 
+std::uint64_t get_mem_usage(
+	const std::uint32_t pid
+	) {
+	if (pid == 0) {
+		return 0;
+	}
+
+	std::ifstream ifs("/proc/" + std::to_string(pid) + "/status");
+	if (!ifs) {
+		return 0;
+	}
+}
+
 int parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int& set_default_gpus, int& print_result, int argc, char** argv) {
 	run_command_head = 1;
 	output_file_name = "gpu.csv";
@@ -146,6 +159,11 @@ int main(int argc, char** argv) {
 	ftruncate(fd, 1);
 	const auto semaphore = static_cast<char*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
 	*semaphore = process::running;
+
+	const auto fd_main_pid = shm_open("/cpu_monitor_smem", O_CREAT | O_RDWR, 0666);
+	ftruncate(fd_main_pid, sizeof(std::uint32_t));
+	const auto target_pid_ptr = static_cast<std::uint32_t*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+	*target_pid_ptr = 0;
 
 	// interprocess message
 	std::string temp_dir = std::filesystem::temp_directory_path();
@@ -278,6 +296,7 @@ int main(int argc, char** argv) {
 			execvp(cmd, cmd_args.data());
 			exit(0);
 		} else {
+			*target_pid_ptr = command_pid;
 			wait(nullptr);
 			*semaphore = process::end;
 		}
