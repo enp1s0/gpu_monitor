@@ -151,7 +151,7 @@ int main(int argc, char** argv) {
 
 	const auto fd_main_pid = shm_open("/cpu_monitor_smem", O_CREAT | O_RDWR, 0666);
 	ftruncate(fd_main_pid, sizeof(std::uint32_t));
-	const auto target_pid_ptr = static_cast<std::uint32_t*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+	const auto target_pid_ptr = static_cast<std::uint32_t*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd_main_pid, 0));
 	*target_pid_ptr = 0;
 
 	// interprocess message
