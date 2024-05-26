@@ -23,6 +23,8 @@
 #include "gpu_monitor_hip.hpp"
 #endif
 
+#include "cpu_vmem.hpp"
+
 // e.g. Input `str` is "0,1,3", then return vector will be `{0, 1, 3}`.
 std::vector<unsigned> get_gpu_ids(const std::string str) {
 	std::stringstream ss(str);
@@ -147,6 +149,11 @@ int main(int argc, char** argv) {
 	const auto semaphore = static_cast<char*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
 	*semaphore = process::running;
 
+	const auto fd_main_pid = shm_open("/cpu_monitor_smem", O_CREAT | O_RDWR, 0666);
+	ftruncate(fd_main_pid, sizeof(std::uint32_t));
+	const auto target_pid_ptr = static_cast<std::uint32_t*>(mmap(nullptr, 1, PROT_READ | PROT_WRITE, MAP_SHARED, fd_main_pid, 0));
+	*target_pid_ptr = 0;
+
 	// interprocess message
 	std::string temp_dir = std::filesystem::temp_directory_path();
 	const auto rand = std::random_device{}();
@@ -192,7 +199,7 @@ int main(int argc, char** argv) {
 			ofs << "gpu" << gpu_id << "_power,";
 			ofs << "gpu" << gpu_id << "_memory_usage,";
 		}
-		ofs << "\n";
+		ofs << "pid,vsize\n";
 		ofs.close();
 
 		// record max power, temperature, memory usage
@@ -234,6 +241,11 @@ int main(int argc, char** argv) {
 				sum_temperature [gpu_id] += temperature;
 				sum_memory_usage[gpu_id] += memory_usage;
 			}
+
+			const auto target_pid = *target_pid_ptr;
+			ofs << target_pid << ","
+				<< get_vsize(target_pid);
+
 			ofs << "\n";
 			insert_message(message_file_path, ofs);
 			ofs.close();
@@ -278,6 +290,7 @@ int main(int argc, char** argv) {
 			execvp(cmd, cmd_args.data());
 			exit(0);
 		} else {
+			*target_pid_ptr = command_pid;
 			wait(nullptr);
 			*semaphore = process::end;
 		}
