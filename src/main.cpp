@@ -23,6 +23,8 @@
 #include "gpu_monitor_hip.hpp"
 #endif
 
+#include "cpu_vmem.hpp"
+
 // e.g. Input `str` is "0,1,3", then return vector will be `{0, 1, 3}`.
 std::vector<unsigned> get_gpu_ids(const std::string str) {
 	std::stringstream ss(str);
@@ -32,19 +34,6 @@ std::vector<unsigned> get_gpu_ids(const std::string str) {
 		result.push_back(std::stoul(buffer));
 	}
 	return result;
-}
-
-std::uint64_t get_mem_usage(
-	const std::uint32_t pid
-	) {
-	if (pid == 0) {
-		return 0;
-	}
-
-	std::ifstream ifs("/proc/" + std::to_string(pid) + "/status");
-	if (!ifs) {
-		return 0;
-	}
 }
 
 int parse_params(unsigned &time_interval, std::string& output_file_name, std::vector<unsigned>& gpu_ids, int& run_command_head, int& set_default_gpus, int& print_result, int argc, char** argv) {
@@ -210,7 +199,7 @@ int main(int argc, char** argv) {
 			ofs << "gpu" << gpu_id << "_power,";
 			ofs << "gpu" << gpu_id << "_memory_usage,";
 		}
-		ofs << "\n";
+		ofs << "pid,vsize\n";
 		ofs.close();
 
 		// record max power, temperature, memory usage
@@ -252,6 +241,11 @@ int main(int argc, char** argv) {
 				sum_temperature [gpu_id] += temperature;
 				sum_memory_usage[gpu_id] += memory_usage;
 			}
+
+			const auto target_pid = *target_pid_ptr;
+			ofs << target_pid << ","
+				<< get_vsize(target_pid);
+
 			ofs << "\n";
 			insert_message(message_file_path, ofs);
 			ofs.close();
