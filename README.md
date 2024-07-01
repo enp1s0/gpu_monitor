@@ -17,6 +17,7 @@ Build:
 git clone https://github.com/enp1s0/gpu_monitor --recursive
 cd gpu_monitor
 mkdir build
+cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install
 make -j4
 make install
