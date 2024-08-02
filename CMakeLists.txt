@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 project(tsqr-tc LANGUAGES CXX CUDA)
 
-find_package(CUDA 11.0 REQUIRED)
-find_package(CUDAToolkit REQUIRED)
+find_package(CUDAToolkit 11.0 REQUIRED)
 find_package(OpenMP)
 
 # CUDA/CXX
