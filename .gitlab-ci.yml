@@ -16,6 +16,7 @@ build_test:
     - apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"
     - apt update && apt install -y --no-install-recommends cmake
   script:
+    - git submodule update --init
     - nvidia-smi
     - sed -i 's/BUILD_TEST OFF/BUILD_TEST ON/g' CMakeLists.txt
     - mkdir -p build && cd build
