@@ -41,7 +41,7 @@ Some options are available to specify time interval and output file name.
 ```bash
 gpu_monitor [-i interval(ms){default=100}] [-o output_file_name{default=gpu.csv}] [-g gpu_id{default=ALL}] [-r] target_command
 ```
-- '-r' option turns on printing result message.  
+- '-r' option turns on printing result message.
 e.g.
 ```
 ##### GPU Monitoring result #####

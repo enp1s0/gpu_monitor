@@ -279,7 +279,7 @@ int main(int argc, char** argv) {
 		exit(0);
 	} else {
 		const auto cmd = argv[run_command_head];
-		std::vector<char*> cmd_args(argc - run_command_head + 1);	
+		std::vector<char*> cmd_args(argc - run_command_head + 1);
 		for (int i = run_command_head, v = 0; i < argc; i++, v++) {
 			cmd_args[v] = argv[i];
 		}
