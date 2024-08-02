@@ -43,7 +43,7 @@ std::size_t mtk::gpu_monitor::gpu_monitor_cuda::get_current_used_memory(const un
 	nvmlMemory_t memory;
 	CUTF_CHECK_ERROR_M(nvmlDeviceGetMemoryInfo(device, &memory), "GPU ID = " + std::to_string(gpu_id));
 
-	return memory.used;
+	return memory.total - memory.free;
 }
 
 std::vector<std::pair<unsigned, std::string>> mtk::gpu_monitor::gpu_monitor_cuda::get_gpu_list() const {

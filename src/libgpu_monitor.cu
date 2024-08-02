@@ -79,7 +79,7 @@ double mtk::gpu_monitor::get_integrated_power_consumption(
 	double power_consumption = 0.;
 	for (unsigned i = 1; i < profiling_data_list.size(); i++) {
 		const auto elapsed_time = (profiling_data_list[i].timestamp - profiling_data_list[i - 1].timestamp) * 1e-6;
-		// trapeziodal integration
+		// trapezoidal integration
 		power_consumption += (profiling_data_list[i].power + profiling_data_list[i - 1].power) / 2 * elapsed_time;
 	}
 	return power_consumption;

@@ -21,7 +21,7 @@ inline void insert_message(const std::string message) {
 
 	std::ofstream ofs(message_file_path, std::ios::app);
 	if (!ofs) {
-		std::fprintf(stderr, "[gpu_monitor] Could not open messge file %s\n", message_file_path.c_str());
+		std::fprintf(stderr, "[gpu_monitor] Could not open message file %s\n", message_file_path.c_str());
 		return;
 	}
 
